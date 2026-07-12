@@ -115,13 +115,15 @@ Modules declare metadata using `defineOptions`:
 ```ts
 defineOptions({
   inheritAttrs: false,
-  moduleTitle: 'Title of the Module',  
+  moduleTitle: 'Title of the Module',
   isDesktopModule: true,
   isMobileModule: true,
   isVisibleModule: true,
   isOnlyVisibleWithSelectedAas: false,
   isOnlyVisibleWithSelectedNode: false,
   visibleOnRoutes: ['AASEditor', 'SMEditor'],
+  needsInfrastructureEndpoints: ['AASRepo', 'SubmodelRepo'],
+  needsEnvVariables: ['SINGLE_AAS_REDIRECT', 'SINGLE_SM_REDIRECT']
   preserveRouteQuery: false,
 });
 ```
@@ -137,6 +139,8 @@ defineOptions({
 | `isOnlyVisibleWithSelectedAas` | Only visible when an AAS is selected (default: `false`) |
 | `isOnlyVisibleWithSelectedNode` | Only visible when a Submodel or SME is selected (default: `false`) |
 | `visibleOnRoutes` | Only visible when coming from specific  routes. This option is given as a string array and acts as a whitelist. `['AASEditor', 'SMEditor']` means that the module is visible only from the "AAS Editor" or "SM Editor" view. `[]` means that the module is visible from all routes. (default: `[]`) |
+| `needsInfrastructureEndpoints` | Only visible if specific endpoints are configured. This option is given as a string array. `['AASRepo', 'SubmodelRepo']` means that the module is visible only if the AAS Repository and Submodel Repository endspoints are configured. `[]` means that the module is visible regardless of which endpoints are configured. (default: `[]`) |
+| `needsEnvVariables` | Only visible if specific env variables are configured and are not empty. This option is given as a string array. `['SINGLE_AAS_REDIRECT', 'SINGLE_SM_REDIRECT']` means that the module is visible only if the `SINGLE_AAS_REDIRECT` and `SINGLE_AAS_REDIRECT` env variables are configured and none of them is empty. `[]` means that the module is visible regardless of which endpoints are configured. (default: `[]`) |
 | `preserveRouteQuery` | Preserve `aas`/`path` query parameters in the route (default: `false`) |
 
 ```{note}
