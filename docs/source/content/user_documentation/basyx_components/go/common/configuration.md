@@ -121,9 +121,16 @@ Each `claimMappings` entry contains:
 | `externalUrl` | `""` | Public base URL used to generate synchronized registry endpoint descriptors. Multiple URLs can be comma-separated. |
 | `trustProxyHeaders` | `false` | Allows trusted reverse proxies to supply the public request scheme, host, and client information through `Forwarded` or `X-Forwarded-*` headers. |
 | `trustedProxyCIDRs` | `[]` | CIDR allowlist of proxy source addresses whose forwarded headers may be trusted. |
-| `uploadMaxSizeBytes` | `134217728` | Maximum upload size for repository/environment upload endpoints. |
+| `uploadMaxSizeBytes` | `134217728` | Maximum compressed HTTP request size, including multipart overhead, for binary upload endpoints. |
+| `aasxMaxPartCount` | `10000` | Maximum number of non-directory entries in an AASX package. |
+| `aasxMaxOPCMetadataSizeBytes` | `16777216` | Maximum combined expanded size of AASX OPC metadata. |
+| `aasxMaxPartExpandedSizeBytes` | `134217728` | Maximum expanded size of one AASX payload part. |
+| `aasxMaxTotalExpandedSizeBytes` | `134217728` | Maximum combined expanded size of all AASX payload parts. |
+| `aasxMaxThumbnailSizeBytes` | `16777216` | Maximum expanded size of an AASX thumbnail. |
 | `aasPreconfigPaths` | `[]` | AAS Environment startup import sources. Supports files or folders with `.aasx`, `.json`, or `.xml` files. |
 | `bulkBatchLimit` | `1000` | Maximum row count per generated bulk SQL statement. Must be greater than `0`. |
+
+`uploadMaxSizeBytes` limits the compressed HTTP request, including multipart overhead. The AASX settings independently limit expanded package content to protect against packages whose contents are much larger than the uploaded file. All six values must be greater than `0`. In addition, `aasxMaxTotalExpandedSizeBytes` must be greater than or equal to `aasxMaxPartExpandedSizeBytes`, which must be greater than or equal to `aasxMaxThumbnailSizeBytes`.
 
 When registry synchronization is enabled, `general.externalUrl` must be set to at least one absolute URL with scheme and host.
 
@@ -257,6 +264,11 @@ general:
   trustProxyHeaders: false
   trustedProxyCIDRs: []
   uploadMaxSizeBytes: 134217728
+  aasxMaxPartCount: 10000
+  aasxMaxOPCMetadataSizeBytes: 16777216
+  aasxMaxPartExpandedSizeBytes: 134217728
+  aasxMaxTotalExpandedSizeBytes: 134217728
+  aasxMaxThumbnailSizeBytes: 16777216
   aasPreconfigPaths: []
   bulkBatchLimit: 1000
 
@@ -332,6 +344,11 @@ OIDC_TRUSTLISTPATH=config/trustlist.json
 GENERAL_EXTERNALURL=https://example.org/aas
 GENERAL_TRUSTPROXYHEADERS=false
 GENERAL_UPLOADMAXSIZEBYTES=134217728
+GENERAL_AASXMAXPARTCOUNT=10000
+GENERAL_AASXMAXOPCMETADATASIZEBYTES=16777216
+GENERAL_AASXMAXPARTEXPANDEDSIZEBYTES=134217728
+GENERAL_AASXMAXTOTALEXPANDEDSIZEBYTES=134217728
+GENERAL_AASXMAXTHUMBNAILSIZEBYTES=16777216
 GENERAL_BULK_BATCH_LIMIT=1000
 SWAGGER_ENABLED=true
 ```
@@ -411,6 +428,7 @@ In containers, paths are resolved inside the container filesystem. Mount the fil
 ## Notes
 
 - The BaSyx Configuration Service mainly uses the `postgres` section.
-- Repository and environment services use `general.uploadMaxSizeBytes` for upload limits.
+- Repository, environment, and AASX File Server endpoints use `general.uploadMaxSizeBytes` for compressed request limits.
+- Services that process AASX packages use the `general.aasxMax*` settings for expanded package limits.
 - AAS Environment additionally supports `general.aasPreconfigPaths`.
 - AAS Repository, Submodel Repository, and AAS Environment use the registry synchronization settings when enabled.
